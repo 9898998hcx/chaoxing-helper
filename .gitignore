@@ -1,0 +1,15 @@
+# dependencies / build artifacts
+node_modules/
+dist/
+build/
+
+# logs & temp
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# local test data
+edge-test/
+publish/
+*.pfx
