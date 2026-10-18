@@ -1,0 +1,51 @@
+{
+  "manifest_version": 3,
+  "name": "学习通课程助手 · DeepSeek",
+  "version": "1.5.1",
+  "description": "自动播放学习通网页版课程视频（自动连播、防挂机、侧边栏手动播放/暂停控制），并接入 DeepSeek 模型辅助完成课程测验与作业答题。",
+  "permissions": ["storage", "sidePanel"],
+  "host_permissions": [
+    "https://*.chaoxing.com/*",
+    "https://*.xueyinonline.com/*",
+    "https://api.deepseek.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "sidepanel/panel.html"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "学习通课程助手",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.chaoxing.com/*", "https://*.xueyinonline.com/*"],
+      "js": ["content/tasks.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://*.chaoxing.com/*", "https://*.xueyinonline.com/*"],
+      "js": ["content/video-player.js"],
+      "run_at": "document_idle",
+      "all_frames": true,
+      "match_about_blank": true
+    },
+    {
+      "matches": ["https://*.chaoxing.com/*", "https://*.xueyinonline.com/*"],
+      "js": ["content/answer-helper.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
