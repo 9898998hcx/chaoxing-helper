@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body>
+  <header>
+    <h1>视频控制器</h1>
+    <span class="badge" id="stateBadge">检测中…</span>
+  </header>
+
+  <section class="card">
+    <div class="title" id="videoTitle">当前页面没有学习通视频</div>
+
+    <div class="progress">
+      <div class="bar"><div class="fill" id="barFill"></div></div>
+      <div class="time" id="timeText">00:00 / 00:00</div>
+    </div>
+
+    <button id="toggleBtn" class="primary" disabled>▶ 播放</button>
+
+    <div class="row">
+      <label class="switch"><input type="checkbox" id="autoPlay"> 自动播放</label>
+      <label class="switch"><input type="checkbox" id="autoNext"> 自动连播</label>
+      <label class="switch"><input type="checkbox" id="antiPause"> 防挂机</label>
+    </div>
+  </section>
+
+  <footer>
+    控制的是当前活动标签页里的学习通视频<br>
+    状态每秒刷新，播放 / 暂停即时生效
+  </footer>
+
+  <script src="panel.js"></script>
+</body>
+</html>
