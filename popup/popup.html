@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <h1>学习通课程助手</h1>
+    <p class="sub">视频自动播放 · DeepSeek 辅助答题</p>
+  </header>
+
+  <form id="form">
+    <label class="field">
+      <span>DeepSeek API Key</span>
+      <input type="password" id="apiKey" placeholder="sk-..." autocomplete="off">
+    </label>
+
+    <label class="field">
+      <span>模型</span>
+      <select id="model">
+        <option value="deepseek-chat">deepseek-chat（推荐）</option>
+        <option value="deepseek-reasoner">deepseek-reasoner（推理更强）</option>
+      </select>
+    </label>
+
+    <label class="field">
+      <span>视频倍速</span>
+      <select id="rate">
+        <option value="1">1.0x（稳定）</option>
+        <option value="1.25">1.25x</option>
+        <option value="1.5">1.5x</option>
+        <option value="2">2.0x</option>
+      </select>
+    </label>
+
+    <div class="toggles">
+      <label><input type="checkbox" id="autoPlay"> 自动播放视频</label>
+      <label><input type="checkbox" id="autoNext"> 自动连播下一节</label>
+      <label><input type="checkbox" id="antiPause"> 防挂机自动点击</label>
+      <label><input type="checkbox" id="autoAnswer"> 进入答题页自动开始</label>
+      <label><input type="checkbox" id="autoSubmit"> 答完自动提交（谨慎）</label>
+    </div>
+
+    <button type="submit" id="save">保存设置</button>
+    <p class="status" id="status"></p>
+    <button type="button" id="openPanel">🎬 打开视频控制面板（浏览器侧边栏）</button>
+    <p class="hint">提示：学习通视频页右下角会自动出现悬浮控制器</p>
+  </form>
+
+  <footer>
+    答案由 AI 生成，请自行核对；仅限本人学习使用，请遵守学校规定。
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>
