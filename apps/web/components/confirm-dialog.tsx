@@ -1,0 +1,7 @@
+'use client';
+import { useEffect, useRef } from 'react';
+export function ConfirmDialog({ title, description, action = '确认', danger = false, busy = false, onConfirm, onCancel }: { title: string; description: string; action?: string; danger?: boolean; busy?: boolean; onConfirm:()=>void; onCancel:()=>void }) {
+  const ref=useRef<HTMLDivElement>(null);
+  useEffect(()=>{const previous=document.activeElement as HTMLElement|null;ref.current?.focus();const key=(e:KeyboardEvent)=>{if(e.key==='Escape'&&!busy)onCancel();if(e.key==='Tab'){const elements=ref.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)');if(!elements?.length)return;const first=elements[0],last=elements[elements.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}};document.addEventListener('keydown',key);return()=>{document.removeEventListener('keydown',key);previous?.focus();};},[busy,onCancel]);
+  return <div className="dialog-backdrop"><div className="confirm-dialog" ref={ref} tabIndex={-1} role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-description"><h2 id="confirm-title">{title}</h2><p id="confirm-description">{description}</p><div className="button-row"><button className="button secondary" disabled={busy} onClick={onCancel}>取消</button><button className={`button ${danger?'danger':''}`} disabled={busy} onClick={onConfirm}>{busy?'处理中…':action}</button></div></div></div>;
+}

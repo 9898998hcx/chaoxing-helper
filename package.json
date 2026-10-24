@@ -1,0 +1,75 @@
+{
+  "name": "resume-workshop",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n api,web \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "node --env-file=.env --import tsx apps/api/src/main.ts",
+    "dev:web": "npm run dev --workspace @resume/web",
+    "start:api": "node --env-file=.env --import tsx apps/api/src/main.ts",
+    "worker": "node --env-file=.env --import tsx apps/worker/src/main.ts",
+    "build": "npm run typecheck && npm run build --workspace @resume/web",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p apps/web/tsconfig.json",
+    "test": "vitest run && tsx --test tests/crawler.test.ts",
+    "test:e2e": "playwright test",
+    "db:generate": "prisma generate",
+    "db:migrate": "node scripts/ensure-sqlite.mjs && prisma migrate deploy",
+    "db:seed": "node --env-file=.env --import tsx prisma/seed.ts",
+    "db:setup": "npm run db:generate && npm run db:migrate && npm run db:seed",
+    "admin": "node --env-file=.env --import tsx scripts/admin.ts",
+    "browser:install": "playwright install chromium"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.900.0",
+    "@nestjs/common": "^11.1.0",
+    "@nestjs/core": "^11.1.0",
+    "@nestjs/platform-express": "^11.1.0",
+    "@prisma/client": "6.19.3",
+    "bcryptjs": "^3.0.2",
+    "bullmq": "^5.61.0",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.2.3",
+    "ioredis": "^5.8.2",
+    "next": "^16.0.0",
+    "nodemailer": "^10.2.0",
+    "playwright": "1.64.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "reflect-metadata": "^0.2.2",
+    "robots-parser": "^3.0.1",
+    "rxjs": "^7.8.2",
+    "undici": "^7.16.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.0",
+    "@types/cookie-parser": "^1.4.9",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.0",
+    "@types/nodemailer": "^7.0.2",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@types/supertest": "^6.0.3",
+    "concurrently": "^9.2.1",
+    "prisma": "6.19.3",
+    "supertest": "^7.1.4",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.0",
+    "vitest": "^5.0.5"
+  },
+  "overrides": {
+    "deepmerge-ts": "^8.0.0",
+    "effect": "^3.20.0"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  }
+}

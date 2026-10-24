@@ -1,0 +1,17 @@
+node_modules
+**/node_modules
+.git
+.env
+.env.*
+!.env.example
+**/.next
+**/*.db
+**/*.db-journal
+**/*.db-shm
+**/*.db-wal
+test-results
+playwright-report
+coverage
+artifacts
+*.log
+.DS_Store

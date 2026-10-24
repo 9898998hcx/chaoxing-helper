@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      DATABASE_URL: file:./ci.db
+      APP_ORIGIN: http://localhost:3000
+      API_INTERNAL_URL: http://127.0.0.1:3001
+      REDIS_URL: memory://
+      EMAIL_VERIFICATION_REQUIRED: "false"
+      CRAWLER_ENABLED: "false"
+      DEEPSEEK_API_KEY: ""
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - run: cp .env.example .env
+      - run: npm run db:setup
+      - run: sudo apt-get update && sudo apt-get install -y fonts-noto-cjk
+      - run: npx playwright install --with-deps chromium
+      - run: npm test
+      - run: npm run build
+      - run: npm run test:e2e
+      - run: npm audit --omit=dev --audit-level=high
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-failures
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
+          if-no-files-found: ignore

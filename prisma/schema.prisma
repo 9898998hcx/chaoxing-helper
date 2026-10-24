@@ -1,0 +1,201 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TemplateStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  TAKEN_DOWN
+}
+
+enum CrawlStatus {
+  QUEUED
+  RUNNING
+  SUCCEEDED
+  SKIPPED
+  FAILED
+}
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  passwordHash    String
+  role            Role      @default(USER)
+  emailVerifiedAt DateTime?
+  customDeepseekKey String?  @map("custom_deepseek_key")
+  createdAt       DateTime  @default(now())
+  sessions        Session[]
+  verifications   EmailVerification[]
+  resumes         Resume[]
+  aiLogs          AiGenerationLog[]
+  auditLogs       AuditLog[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  expiresAt DateTime
+  csrfToken String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model EmailVerification {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Resume {
+  id         String   @id @default(cuid())
+  userId     String
+  title      String
+  templateId String?
+  revision   Int      @default(1)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  template   Template? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  sections   ResumeSection[]
+  versions   ResumeVersion[]
+  aiLogs     AiGenerationLog[]
+
+  @@index([userId, updatedAt])
+}
+
+model ResumeSection {
+  id       String  @id @default(cuid())
+  resumeId String
+  type     String
+  title    String
+  visible  Boolean @default(true)
+  order    Int
+  content  Json
+  resume   Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@index([resumeId, order])
+}
+
+model ResumeVersion {
+  id        String   @id @default(cuid())
+  resumeId  String
+  revision  Int
+  data      Json
+  createdAt DateTime @default(now())
+  resume    Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@unique([resumeId, revision])
+  @@index([resumeId, createdAt])
+}
+
+model Template {
+  id            String         @id @default(cuid())
+  title         String
+  slug          String         @unique
+  description   String
+  tags          Json
+  industry      String?
+  style         String
+  layout        String
+  sectionOrder  Json
+  thumbnailUrl  String?
+  sourceUrl     String?        @unique
+  sourceId      String?
+  status        TemplateStatus @default(PENDING)
+  license       String?
+  reviewNote    String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  source        TemplateSource? @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+  resumes       Resume[]
+  aiLogs        AiGenerationLog[]
+
+  @@index([status, createdAt])
+  @@index([sourceId])
+}
+
+model TemplateSource {
+  id                  String    @id @default(cuid())
+  name                String
+  baseUrl             String    @unique
+  tosUrl              String
+  tosEvidence         String?
+  enabled             Boolean   @default(false)
+  permissionConfirmed Boolean   @default(false)
+  robotsRequired      Boolean   @default(true)
+  rateLimitMs         Int       @default(3000)
+  metadataPath        String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  templates           Template[]
+  jobs                CrawlJob[]
+}
+
+model CrawlJob {
+  id             String       @id @default(cuid())
+  sourceId       String
+  status         CrawlStatus  @default(QUEUED)
+  reason         String?
+  processedCount Int          @default(0)
+  createdAt      DateTime     @default(now())
+  startedAt      DateTime?
+  finishedAt     DateTime?
+  source         TemplateSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@index([sourceId, createdAt])
+  @@index([status])
+}
+
+model AiGenerationLog {
+  id              String   @id @default(cuid())
+  userId          String
+  resumeId        String?
+  templateId      String?
+  scenario        String
+  status          String
+  inputTokens     Int      @default(0)
+  outputTokens    Int      @default(0)
+  estimatedTokens Int      @default(0)
+  quotaExempt     Boolean  @default(false)
+  durationMs      Int
+  errorCode       String?
+  createdAt       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resume          Resume?  @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+  template        Template? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String
+  targetType String
+  targetId   String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId, createdAt])
+  @@index([targetType, targetId])
+}
